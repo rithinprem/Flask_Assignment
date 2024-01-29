@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time To-Do List</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        div {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-description {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .edit-task {
+            padding: 8px;
+            margin-right: 10px;
+            flex-grow: 2;
+        }
+
+        .update-task {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .update-task:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Real-Time To-Do List</h1>
+
+        <ul id="task-list">
+            {% for task in tasks %}
+                <li>
+                    <span class="task-description">{{ task.description }}</span>
+                    <input class="edit-task" type="text" placeholder="Edit task">
+                    <button class="update-task">Update</button>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <script type="text/javascript">
+            var socket = io.connect('https://salmon-electrician-vsnoo.pwskills.app:5001');
+
+            socket.on('updated_tasks', function(updatedTasks) {
+                // Update the task list with the received updated tasks
+                $('#task-list').empty();
+                updatedTasks.forEach(function(task) {
+                    $('#task-list').append('<li><span class="task-description">' + task.description + '</span>' +
+                                           '<input class="edit-task" type="text" placeholder="Edit task">' +
+                                           '<button class="update-task">Update</button></li>');
+                });
+            });
+
+            // Event listener for the 'Update' button click
+            $('#task-list').on('click', '.update-task', function() {
+                var taskDescription = $(this).siblings('.edit-task').val();
+                var taskId = $(this).parent().index() + 1;  // Assuming tasks are 1-indexed
+
+                // Example: Sending an update from the client side when the button is clicked
+                var updatedTask = { task_id: taskId, description: taskDescription };
+                socket.emit('update_task', updatedTask);
+            });
+        </script>
+    </div>
+</body>
+</html>
