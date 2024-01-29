@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Notifications</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+    <div>
+        <h1>Real-Time Notifications</h1>
+        <button id="notifyBtn">Notify Users</button>
+
+        <script type="text/javascript">
+            var socket = io.connect('https://black-carpenter-uiojl.pwskills.app:5000');
+
+            // Event listener for the 'Notify Users' button click
+            $('#notifyBtn').on('click', function() {
+                var message = prompt('Enter notification message:');
+                if (message !== null && message !== '') {
+                    // Example: Sending a notification from the client side when the button is clicked
+                    socket.emit('notify_update', { 'message': message });
+                }
+            });
+
+            // Event listener for receiving notifications from the server
+            socket.on('update_notification', function(data) {
+                alert('Notification: ' + data.message);
+            });
+        </script>
+    </div>
+</body>
+</html>
